@@ -32,9 +32,6 @@ services:
       - LOG_LEVEL=DEBUG
       - LOG_FORMAT=text
       - PYTHONPATH=/app/src
-      - BALE_BOT_TOKEN=${BALE_BOT_TOKEN:-}
-      - BALE_API_URL=${BALE_API_URL:-https://tapi.bale.ai/bot{0}/{1}}
-      - BALE_BOT_PHONE=${BALE_BOT_PHONE:-}
     depends_on:
       db:
         condition: service_healthy

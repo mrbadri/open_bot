@@ -7,9 +7,9 @@ if [ -n "$DATABASE_URL" ]; then
     /docker-scripts/wait_for_db.sh
 fi
 
-# Run database migrations
+# Run database migrations (use root alembic.ini, PYTHONPATH for app imports)
 echo "Running database migrations..."
-cd /app/src/app/db/migrations && alembic upgrade head || echo "Migrations failed or no migrations to run"
+cd /app && PYTHONPATH=/app/src alembic -c alembic.ini upgrade head || echo "Migrations failed or no migrations to run"
 
 # Execute the main command
 exec "$@"

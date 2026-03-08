@@ -20,6 +20,11 @@ PROD_COMPOSE = $(ROOT_DIR)/docker/docker-compose.prod.yml
 help: ## Show this help message
 	@echo "Usage: make [target]"
 	@echo ""
+	@echo "Quick Start (Dev Workflow):"
+	@echo "  1. make dev-up      # Start db + backend"
+	@echo "  2. make migrate     # Create tables (required on first run!)"
+	@echo "  3. Use the bot      # Data will be saved to bot_users table"
+	@echo ""
 	@echo "Development Commands:"
 	@echo "  dev-up          Start development environment"
 	@echo "  dev-down        Stop development environment"
@@ -145,10 +150,10 @@ shell-db-prod: ## Open shell in database container (prod)
 
 # Database commands
 db-migrate-dev: ## Run database migrations (dev)
-	cd $(ROOT_DIR) && docker-compose -f $(DEV_COMPOSE) exec backend bash -c "cd /app && alembic -c alembic.ini upgrade head"
+	cd $(ROOT_DIR) && docker-compose -f $(DEV_COMPOSE) exec backend bash -c "cd /app && PYTHONPATH=/app/src alembic -c alembic.ini upgrade head"
 
 db-migrate-prod: ## Run database migrations (prod)
-	cd $(ROOT_DIR) && docker-compose -f $(PROD_COMPOSE) exec backend bash -c "cd /app && alembic -c alembic.ini upgrade head"
+	cd $(ROOT_DIR) && docker-compose -f $(PROD_COMPOSE) exec backend bash -c "cd /app && PYTHONPATH=/app/src alembic -c alembic.ini upgrade head"
 
 db-shell-dev: ## Open PostgreSQL shell (dev)
 	docker-compose -f $(DEV_COMPOSE) exec db psql -U bale_bot -d bale_bot
@@ -158,7 +163,7 @@ db-shell-prod: ## Open PostgreSQL shell (prod)
 
 # Migration commands (aliases for convenience)
 migrate: ## Run database migrations (dev) - upgrade to head
-	cd $(ROOT_DIR) && docker-compose -f $(DEV_COMPOSE) exec backend bash -c "cd /app && alembic -c alembic.ini upgrade head"
+	cd $(ROOT_DIR) && docker-compose -f $(DEV_COMPOSE) exec backend bash -c "cd /app && PYTHONPATH=/app/src alembic -c alembic.ini upgrade head"
 
 migrate-create: ## Create new migration (dev) - usage: make migrate-create MESSAGE='description'
 	@if [ -z "$(MESSAGE)" ]; then \
@@ -168,20 +173,20 @@ migrate-create: ## Create new migration (dev) - usage: make migrate-create MESSA
 	cd $(ROOT_DIR) && docker-compose -f $(DEV_COMPOSE) exec backend bash -c "cd /app && export PYTHONPATH=/app/src:\$$PYTHONPATH && alembic -c alembic.ini revision --autogenerate -m '$(MESSAGE)'"
 
 migrate-current: ## Show current migration revision (dev)
-	cd $(ROOT_DIR) && docker-compose -f $(DEV_COMPOSE) exec backend bash -c "cd /app && alembic -c alembic.ini current"
+	cd $(ROOT_DIR) && docker-compose -f $(DEV_COMPOSE) exec backend bash -c "cd /app && PYTHONPATH=/app/src alembic -c alembic.ini current"
 
 migrate-history: ## Show migration history (dev)
-	cd $(ROOT_DIR) && docker-compose -f $(DEV_COMPOSE) exec backend bash -c "cd /app && alembic -c alembic.ini history"
+	cd $(ROOT_DIR) && docker-compose -f $(DEV_COMPOSE) exec backend bash -c "cd /app && PYTHONPATH=/app/src alembic -c alembic.ini history"
 
 migrate-downgrade: ## Downgrade one revision (dev)
-	cd $(ROOT_DIR) && docker-compose -f $(DEV_COMPOSE) exec backend bash -c "cd /app && alembic -c alembic.ini downgrade -1"
+	cd $(ROOT_DIR) && docker-compose -f $(DEV_COMPOSE) exec backend bash -c "cd /app && PYTHONPATH=/app/src alembic -c alembic.ini downgrade -1"
 
 migrate-upgrade: ## Upgrade to specific revision (dev) - usage: make migrate-upgrade REVISION='revision_id'
 	@if [ -z "$(REVISION)" ]; then \
 		echo "Error: REVISION is required. Usage: make migrate-upgrade REVISION='revision_id'"; \
 		exit 1; \
 	fi
-	cd $(ROOT_DIR) && docker-compose -f $(DEV_COMPOSE) exec backend bash -c "cd /app && alembic -c alembic.ini upgrade $(REVISION)"
+	cd $(ROOT_DIR) && docker-compose -f $(DEV_COMPOSE) exec backend bash -c "cd /app && PYTHONPATH=/app/src alembic -c alembic.ini upgrade $(REVISION)"
 
 # Test commands
 test: ## Run all tests (dev)
